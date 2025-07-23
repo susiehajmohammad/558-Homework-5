@@ -195,6 +195,69 @@ Because the cross validation penalty is almost 0.  That means the shrinkage is d
 
 ### Question 1
 
-### Question 2
+```{r}
 
-### Question 3
+set.seed(101)
+
+# recode & split
+heart_data <- heart_data %>%
+  mutate(HeartDisease = factor(HeartDisease))
+heart_split <- initial_split(heart_data, prop = 0.8)
+heart_train <- training(heart_split)
+heart_test  <- testing(heart_split)
+
+# 10‑fold CV on training set
+heart_CV_folds <- vfold_cv(heart_train, v = 10)
+
+#  Recipes for  models
+# model1 Age + Sex
+LR1_rec <- recipe(HeartDisease ~ Age + Sex, data = heart_train) %>%
+  step_normalize(Age) %>%
+  step_dummy(Sex)
+
+# model2 Age + Sex + ChestPainType + RestingBP + RestingECG + MaxHR + ExerciseAngina
+LR2_rec <- recipe(HeartDisease ~ Age + Sex + ChestPainType + RestingBP + RestingECG + MaxHR + ExerciseAngina,
+                  data = heart_train) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+
+#  Specify logistic regression
+LR_spec <- logistic_reg() %>% set_engine("glm")
+
+# workflows
+LR1_wkf <- workflow() %>% add_recipe(LR1_rec) %>% add_model(LR_spec)
+LR2_wkf <- workflow() %>% add_recipe(LR2_rec) %>% add_model(LR_spec)
+
+#fit with cv folds
+LR1_res <- LR1_wkf %>% fit_resamples(resamples = heart_CV_folds,
+                                     metrics   = metric_set(accuracy, mn_log_loss))
+LR2_res <- LR2_wkf %>% fit_resamples(resamples = heart_CV_folds,
+                                     metrics   = metric_set(accuracy, mn_log_loss))
+
+cv_compare <- bind_rows(
+  LR1_res %>% collect_metrics() %>% mutate(Model = "Model1"),
+  LR2_res %>% collect_metrics() %>% mutate(Model = "Model2")
+) %>%
+  select(Model, .metric, mean, std_err)
+
+cv_compare
+
+# final fit
+final_wkf <- LR2_wkf %>% fit(data = heart_train)
+
+# confusion matrix on test 
+test_preds <- predict(final_wkf, heart_test) %>%
+  bind_cols(heart_test)
+
+test_cm <- conf_mat(test_preds, truth = HeartDisease, estimate = .pred_class)
+test_cm
+
+# extract sensitivity & specificity
+test_cm %>% summary()  
+
+```
+
+The model is about 81% accurate for patients. Sensisitive, 71% with HD were correctly classified. Spec, 89% without HD were correct as well.  
+
+
+
