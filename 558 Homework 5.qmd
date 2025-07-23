@@ -87,18 +87,109 @@ train <- training(new_heart_split)
 ## Task 5
 
 ### Question 1
+```{r}
+# fit interaction model named ols_mlr
+
+ols_mlr <- lm(Age ~ MaxHR*heart_disease, data = train)
+summary(ols_mlr)
+
+```
 
 ### Question 2
 
+```{r}
+test_model <- predict(ols_mlr, newdata = test)
+
+# calculation for RMSE
+sqrt(mean((test$Age - test_model)^2))
+
+
+```
+
+
 ### Question 3
+
+```{r}
+
+#LASSO recipe
+
+LASSO_recipe <- recipe(Age ~ MaxHR + heart_disease, data = train) %>%
+  step_dummy(heart_disease) %>%
+  step_normalize(all_numeric_predictors())%>%
+  step_interact(~MaxHR:starts_with("heart_disease_"))
+
+LASSO_recipe
+
+```
+
 
 ### Question 4
 
-### Question 5
+```{r}
+#model spec
+lasso_spec <- linear_reg(penalty = tune(), mixture = 1) |>
+  set_engine("glmnet") |>
+  set_mode("regression")
 
+#tuning grid
+lambda_grid <- grid_regular(penalty(), levels = 30)
+
+#lasso workflow
+lasso_wkf <- workflow() |>
+  add_recipe(LASSO_recipe) |>
+  add_model(lasso_spec)
+
+#Cv folds
+set.seed(101)
+cv_splits <- vfold_cv(train, v = 10)
+
+#tune model on grid
+
+lasso_fit <- lasso_wkf |>
+  tune_grid(
+    resamples = cv_splits,
+    grid      = lambda_grid,
+    metrics   = metric_set(rmse))
+
+#selecting best penalty
+lowest_rmse <- lasso_fit |> 
+  select_best(metric =  "rmse")
+
+#fit lasso on all training data
+final_lasso <- lasso_wkf |>
+  finalize_workflow(lowest_rmse) |>
+  fit(data = train)
+
+#final coefficients
+tidy(final_lasso)
+
+
+```
+
+
+
+### Question 5
+Without even looking, I'd expect them to be roughly the same because the penalty is almost 0 (above). So the LASSO barely shrank the coefficients from their original values in the OLS, i think the test data RMSE will be almost the same for both. 
 ### Question 6
+```{r}
+ols_rmse <- rmse_vec(
+  truth    = test$Age,
+  estimate = predict(ols_mlr, newdata = test)
+)
+ols_rmse
+
+lasso_rmse <- rmse_vec(
+  truth    = test$Age,
+  estimate = predict(final_lasso, new_data = test)$.pred
+)
+lasso_rmse
+
+
+```
 
 ### Question 7
+Because the cross validation penalty is almost 0.  That means the shrinkage is doing almost nothing to the lasso coefficients.  
+
 
 ## Task 6
 
