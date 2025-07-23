@@ -1,0 +1,66 @@
+---
+title: "558 Homework 5"
+author: "Susan Hajmohammad"
+format: pdf
+---
+
+## Task 1
+
+-   Question 1: What is the purpose of using cross-validation when fitting a random forest model?
+  The purpose of using cross validation when fitting a random forest model is to rotate through the data partitions so each one has a turn testing the model.  That way we can see how well the random forest model performs on new data multiple times.  
+
+-   Question 2: Describe the bagged tree algorithm.
+  Bagged tree algorithm is bootstrapping samples then aggregating.  We would make some new datasets using the bootstrapping method (with replacement, non-parametric), then create a full tree on each new dataset.  We then average the results of the trees and in theory the averaged results are more reliable than just making one tree. 
+
+-   Question 3: What is meant by a general linear model?
+A general linear model is a regression model where the model is generally Y= intercept + betas*x's + an error term.  You can have SLR, MLR and ANOVA models too. 
+
+-   Question 4: When fitting a multiple linear regression model, what does adding an interaction term
+do? That is, what does it allow the model to do differently as compared to when it is
+not included in the model?
+  An interaction term looks at how two variables affect the response together. When the model doesn't include an interaction term, the model is just looking at how the variables affect the response independently.  
+
+-   Question 5: Why do we split our data into a training and test set?
+  That way we have a chunk of data that we didn't train the model on, so we can see how it does with predicting new data it hasn't seen yet.  If we just used all the data to train the model we wouldn't have data to test it with!
+
+## Task 2
+
+### Question 1
+
+### Question 2
+
+## Task 3
+
+### Question 1
+
+### Question 2
+
+## Task 4
+
+### Question 1
+
+### Question 2
+
+## Task 5
+
+### Question 1
+
+### Question 2
+
+### Question 3
+
+### Question 4
+
+### Question 5
+
+### Question 6
+
+### Question 7
+
+## Task 6
+
+### Question 1
+
+### Question 2
+
+### Question 3
