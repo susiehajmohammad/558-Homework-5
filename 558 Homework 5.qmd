@@ -57,8 +57,18 @@ summary(new_heart)
 ## Task 3
 
 ### Question 1
+```{r}
+#colorblind friendly scatterplot for age as function of heart disease
+#palette from cookbook-r.com 
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+p <- ggplot(data = new_heart, mapping = aes(x = MaxHR, y = Age, color = heart_disease))
+
+p+ geom_point() + geom_smooth(method = "lm") +  scale_colour_manual(values=cbPalette)
+```
 
 ### Question 2
+Based on the graph visually, I think there is evidence for interaction because the two lines aren't parrallel and cross each other. 
 
 ## Task 4
 
