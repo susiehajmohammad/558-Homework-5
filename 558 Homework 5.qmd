@@ -72,9 +72,17 @@ Based on the graph visually, I think there is evidence for interaction because t
 
 ## Task 4
 
-### Question 1
+### Split data into training and test set: 
 
-### Question 2
+```{r}
+set.seed(101)
+new_heart_split <- initial_split(new_heart, prop = 0.8)
+
+test <- testing(new_heart_split)
+  
+train <- training(new_heart_split)
+
+```
 
 ## Task 5
 
